@@ -1172,6 +1172,14 @@ function instalarApp(){
   document.getElementById('instalarBg').classList.add('open');
 }
 
+// ───────────────── ARMAZENAMENTO PERSISTENTE ─────────────────
+// pede ao navegador para NÃO apagar os dados por falta de uso/espaço
+if(navigator.storage && navigator.storage.persist){
+  navigator.storage.persisted().then(function(jaPersistente){
+    if(!jaPersistente) navigator.storage.persist();
+  }).catch(function(){});
+}
+
 // ───────────────── ONBOARDING (1ª visita) ─────────────────
 if(primeiraVez){
   setTimeout(function(){ abrirManual(); }, 500);
