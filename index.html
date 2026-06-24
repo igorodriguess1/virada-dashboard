@@ -515,7 +515,7 @@ var KEY_OLD = 'viradaFinanceira_v1';
 function mesKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 function mesBlank(){
   return {
-    orcamento:3000,
+    orcamento:'',
     renda:[{desc:'',valor:''}],
     fixas:[{desc:'',venc:'',valor:'',status:'Pendente'}],
     gastos:[{desc:'',valor:'',categoria:'',pago:'Não',recorr:false}],
@@ -543,9 +543,9 @@ if(!data){
   // tenta migrar do formato antigo (v1 = mês único)
   var velho=null; try{ velho=JSON.parse(localStorage.getItem(KEY_OLD)); }catch(e){}
   var mkAtual=mesKey(new Date());
-  data = { mesAtivo:mkAtual, meses:{}, metas:[], limiteCartao:'2000' };
-  if(velho){ data.meses[mkAtual]=velho; }
-  else { data.meses[mkAtual]=exemploMes(); data.metas=[{nome:'Reserva de emergência',atual:'1500',alvo:'5000',cor:'#22c55e'}]; primeiraVez=true; }
+  data = { mesAtivo:mkAtual, meses:{}, metas:[], limiteCartao:'' };
+  data.meses[mkAtual] = velho || mesBlank();
+  if(!velho) primeiraVez=true; // 1ª visita → abre o manual (começa vazio, sem dados de exemplo)
 }
 if(!data.metas) data.metas=[];
 if(data.limiteCartao===undefined) data.limiteCartao='';
@@ -1174,7 +1174,6 @@ function instalarApp(){
 
 // ───────────────── ONBOARDING (1ª visita) ─────────────────
 if(primeiraVez){
-  document.getElementById('bannerEx').style.display='flex';
   setTimeout(function(){ abrirManual(); }, 500);
 }
 </script>
