@@ -256,6 +256,8 @@
   .qbtn:hover{background:var(--green);color:#04210f}
   .qbtn.qclear{color:var(--muted);font-weight:600}
   .qbtn.qclear:hover{background:var(--red);color:#fff}
+  .install-fab{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--green);color:#04210f;border:none;border-radius:99px;padding:13px 24px;font-size:.92rem;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(34,197,94,.5);z-index:58;font-family:inherit;animation:fabPulse 2s ease-in-out infinite}
+  @keyframes fabPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.05)}}
   .saved{position:fixed;bottom:16px;right:16px;background:var(--green);color:#04210f;font-weight:700;font-size:.75rem;padding:8px 16px;border-radius:8px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:50}
   .saved.show{opacity:1}
 </style>
@@ -266,6 +268,7 @@
   <div class="menu-wrap">
     <button class="menu-btn" onclick="toggleMenu(event)" title="Opções">⚙️</button>
     <div class="menu-drop" id="menuDrop">
+      <button onclick="instalarApp()">📲&nbsp; Instalar app</button>
       <button onclick="abrirManual()">❓&nbsp; Como usar</button>
       <button onclick="toggleTema()"><span id="btnTema">🌙</span>&nbsp; Alternar tema</button>
       <button onclick="imprimirRelatorio()">🖨️&nbsp; Imprimir / PDF</button>
@@ -432,6 +435,18 @@
 
 <footer>Virada Financeira · seus dados ficam salvos só neste aparelho 🔒</footer>
 <div class="saved" id="savedMsg">✓ Salvo</div>
+
+<!-- BOTÃO FLUTUANTE DE INSTALAR -->
+<button class="install-fab" id="installFab" onclick="instalarApp()" style="display:none">📲 Instalar app</button>
+
+<!-- MODAL: COMO INSTALAR (iOS / fallback) -->
+<div class="modal-bg" id="instalarBg" onclick="if(event.target===this)document.getElementById('instalarBg').classList.remove('open')">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><h2>📲 Instalar na tela inicial</h2><button class="modal-x" onclick="document.getElementById('instalarBg').classList.remove('open')">✕</button></div>
+    <div class="modal-body" id="instalarPassos"></div>
+    <div class="modal-foot"><button class="modal-ok" onclick="document.getElementById('instalarBg').classList.remove('open')">Entendi 👍</button></div>
+  </div>
+</div>
 
 <!-- ATALHOS DE VALOR -->
 <div class="quickbar" id="quickbar">
@@ -1122,6 +1137,40 @@ Array.prototype.forEach.call(quickbar.querySelectorAll('.qbtn'),function(b){
     quickInput.focus();
   });
 });
+
+// ───────────────── INSTALAR APP (PWA) ─────────────────
+var deferredPrompt=null;
+var jaInstalado = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+var ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+var fab=document.getElementById('installFab');
+
+window.addEventListener('beforeinstallprompt',function(e){
+  e.preventDefault(); deferredPrompt=e;
+  if(!jaInstalado) fab.style.display='block'; // Android/Chrome: dá pra instalar direto
+});
+window.addEventListener('appinstalled',function(){ fab.style.display='none'; deferredPrompt=null; });
+
+// iOS não dispara beforeinstallprompt → mostra o botão para exibir instruções
+if(ehIOS && !jaInstalado) fab.style.display='block';
+
+function instalarApp(){
+  document.getElementById('menuDrop').classList.remove('open');
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(){ deferredPrompt=null; fab.style.display='none'; });
+    return;
+  }
+  // sem prompt nativo → mostra instruções conforme o aparelho
+  var passos = ehIOS
+    ? '<div class="m-step"><span class="m-ico">1️⃣</span><div>Toque no botão <b>Compartilhar</b> (o quadrado com a setinha ↑), na barra do Safari.</div></div>'+
+      '<div class="m-step"><span class="m-ico">2️⃣</span><div>Role e toque em <b>"Adicionar à Tela de Início"</b>.</div></div>'+
+      '<div class="m-step"><span class="m-ico">3️⃣</span><div>Toque em <b>Adicionar</b>. Pronto! O ícone aparece na sua tela. 🎉</div></div>'
+    : '<div class="m-step"><span class="m-ico">1️⃣</span><div>Toque no menu <b>⋮</b> (três pontinhos) no canto do navegador.</div></div>'+
+      '<div class="m-step"><span class="m-ico">2️⃣</span><div>Toque em <b>"Adicionar à tela inicial"</b> ou <b>"Instalar app"</b>.</div></div>'+
+      '<div class="m-step"><span class="m-ico">3️⃣</span><div>Confirme. Pronto! O ícone aparece na sua tela. 🎉</div></div>';
+  document.getElementById('instalarPassos').innerHTML='<p class="m-intro">Deixe a Virada Financeira como um app no seu celular:</p>'+passos;
+  document.getElementById('instalarBg').classList.add('open');
+}
 
 // ───────────────── ONBOARDING (1ª visita) ─────────────────
 if(primeiraVez){
