@@ -83,6 +83,14 @@
   .meta-vals{display:flex;align-items:center;gap:4px;font-size:.78rem;color:var(--muted);white-space:nowrap}
   .meta-vals input{width:80px;background:var(--input);border:1px solid transparent;border-radius:6px;color:var(--txt);padding:5px 6px;font-size:.78rem;text-align:right;font-family:inherit}
   .meta-vals input:focus{outline:none;border-color:var(--blue)}
+  .meta-vals .lbl{font-size:.68rem;color:var(--muted);opacity:.85;margin-left:4px}
+  .meta-vals .lbl:first-child{margin-left:0}
+  @media(max-width:480px){
+    .meta-top{flex-wrap:wrap}
+    .meta-top input.nome{min-width:0}
+    .meta-vals{flex:1 0 100%;justify-content:flex-end;margin-top:4px}
+    .meta-vals input{width:64px}
+  }
   .meta-bar{height:10px;background:var(--input);border-radius:6px;overflow:hidden;position:relative}
   .meta-bar .mf{height:100%;border-radius:6px;background:#22c55e;transition:width .4s}
   .cor-pick{width:26px;height:26px;border:none;border-radius:50%;background:none;cursor:pointer;padding:0;flex-shrink:0}
@@ -881,7 +889,7 @@ function renderMetas(){
       '<div class="meta-top">'+
         '<input type="color" class="cor-pick" value="'+cor+'">'+
         '<input class="nome" placeholder="Ex: Reserva de emergência" value="'+(meta.nome||'').replace(/"/g,'&quot;')+'">'+
-        '<span class="meta-vals">R$ <input class="atual num" inputmode="decimal" placeholder="0" value="'+(meta.atual||'')+'"> / <input class="alvo num" inputmode="decimal" placeholder="0" value="'+(meta.alvo||'')+'"></span>'+
+        '<span class="meta-vals"><span class="lbl">Guardado</span> R$<input class="atual num" inputmode="decimal" placeholder="0" value="'+(meta.atual||'')+'"><span class="lbl">Meta</span> R$<input class="alvo num" inputmode="decimal" placeholder="0" value="'+(meta.alvo||'')+'"></span>'+
         '<button class="del-btn" title="Remover">✕</button>'+
       '</div>'+
       '<div class="meta-bar"><div class="mf" style="width:'+pct+'%;background:'+cor+'"></div></div>'+
